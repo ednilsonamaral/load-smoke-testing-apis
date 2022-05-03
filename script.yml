@@ -1,0 +1,13 @@
+config:
+  target: "http://localhost:4000/api/v1"
+  phases:
+    - duration: 10
+      arrivalRate: 2
+      name: "Warm up - Retrieve data"
+
+scenarios:
+  - flow:
+    - get:
+        url: "/"
+    - get:
+        url: "/users"
