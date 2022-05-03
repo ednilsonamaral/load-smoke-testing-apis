@@ -1,0 +1,47 @@
+config:
+  target: "http://localhost:4000/api/v1"
+  http:
+    timeout: 60
+  phases:
+    - duration: 60
+      arrivalRate: 10
+      name: "login"
+    - duration: 120
+      arrivalRate: 20
+      name: "get user by id"
+    - duration: 120
+      arrivalRate: 100
+      name: "get users"
+  payload:
+    path: "./auth.csv"
+    fields:
+      - "email"
+      - "password"
+
+scenarios:
+  - name: "Login"
+    flow:
+      - post:
+          url: "/login"
+          headers:
+            "content-type": "application/json"
+          json:
+            login: "{{ email }}"
+            password: "{{ password }}"
+          capture:
+            - json: $.data.authorization.token
+              as: token
+            - json: $.data.authorization.user.id
+              as: userId
+  - name: "Get User By ID"
+    flow:
+      - get:
+          url: "/users/{{ userId }}"
+          headers:
+            "authorization": "Bearer {{ token }}"
+  - name: "Get Users"
+    flow:
+      - get:
+          url: "/users"
+          headers:
+            "authorization": "Bearer {{ token }}"
